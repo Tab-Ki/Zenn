@@ -1,4 +1,4 @@
-#%% 一次元データの生成
+#%% 一次元データの補間
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -25,7 +25,7 @@ show_data_1D(func_1D, (x, data))
 #%% RegularGridInterpolator
 from scipy.interpolate import RegularGridInterpolator
 
-interp = RegularGridInterpolator(np.meshgrid(x), data)
+interp = RegularGridInterpolator((x,), data)
 
 #%% 補間の実行
 x2 = np.array([i + 0.5 for i in range(9)])
@@ -40,7 +40,7 @@ def calc_RMSD_1D(func, x, interpolated_data):
     return np.sqrt(temp / len(true_data))
 
 data = np.sin(x)
-interp = RegularGridInterpolator(np.meshgrid(x), data) # method = "linear"
+interp = RegularGridInterpolator((x,), data) # method = "linear"
 data2 = interp(x2)
 
 show_data_1D(np.sin, (x, data), (x2, data2))
@@ -67,7 +67,7 @@ data2 = interp(x2)
 show_data_1D(np.sin, (x, data), (x2, data2))
 print("RMSD(quintic):", calc_RMSD_1D(np.sin, x2, data2))
 
-#%% 三次元データの生成
+#%% 三次元データの補間
 from mpl_toolkits.mplot3d import Axes3D
 
 # データ生成関数
