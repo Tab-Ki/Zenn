@@ -79,14 +79,14 @@ def show_data_3D(*args):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.set_box_aspect((1,1,1))
-    vmin = np.min(args[0][3])
-    vmax = np.max(args[0][3])
-    for arg in args:
-        ax.scatter(arg[0], arg[1], arg[2], c=(arg[3]-vmin)/(vmax-vmin), cmap='jet')
+    sc = ax.scatter(args[0][0], args[0][1], args[0][2], c=args[0][3], cmap='jet')
+    for arg in args[1:]:
+        ax.scatter(arg[0], arg[1], arg[2], c=arg[3], cmap='jet')
     ax.view_init(elev=10, azim=85)
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
+    plt.colorbar(sc)
     plt.show()
 
 x = y = z = np.linspace(0, 5, 6)
