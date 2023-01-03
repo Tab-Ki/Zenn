@@ -3,11 +3,11 @@ title: "Pythonで三次元データの補間を行う"
 emoji: "🐥"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Python"]
-published: false
+published: true
 ---
 # 1. 概要
 
-「地点 A ($x_a, y_a, z_a$) における気温 $T_a$ と地点 B ($x_b, y_b, z_b$) における気温 $T_b$ から、その間にある地点 C ($x_c, y_c, z_c$) の気温 $T_c$ を推測したい」など、三次元やより高次のデータに対して補間を行いたい場合があります。`Python` で N 次元データの補間を行いたい場合、`SciPy` の `RegularGridInterpolator` を利用することが推奨されているようですが、日本語記事が少なかったためメモとして記事にしてみました。
+「地点 A ($x_a, y_a, z_a$) における気温 $T_a$ と地点 B ($x_b, y_b, z_b$) における気温 $T_b$ から、その間にある地点 C ($x_c, y_c, z_c$) の気温 $T_c$ を推測したい」など、三次元やより高次のデータに対して補間を行いたい場合があります。`Python` で N 次元データの補間を行いたい場合、`SciPy` の `RegularGridInterpolator` を利用するといいですよと教わったのですが、日本語記事が少なかったためメモを残します。
 
 ## 1.1. 環境
 
@@ -25,8 +25,7 @@ https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGr
 ```Python:definition
 class scipy.interpolate.RegularGridInterpolator(points, values, method='linear', bounds_error=True, fill_value=nan)
 ```
-
-任意次元の構造化データ（グリッドデータ）に対して補間（内挿・外挿）を行うモジュールです。非構造化データの場合は `NearestNDInterpolator` や `LinearNDInterpolator` を用いるようです。
+<br>任意次元の構造化データ（グリッドデータ）に対して補間（内挿・外挿）を行うモジュールです。非構造化データの場合は `NearestNDInterpolator` や `LinearNDInterpolator` を用いるようです。
 
 - パラメータ
   - `points : tuple of ndarray of float, with shapes (m1, ), …, (mn, )`
@@ -52,12 +51,12 @@ class scipy.interpolate.RegularGridInterpolator(points, values, method='linear',
 
 ## 1.3. プログラム
 
-記事で利用しているプログラムです。記事内では描画関数など本筋と関係ないものは省略しています。
+記事で利用しているプログラムです。記事内では本筋と関係ない内容は省略しています。
 https://github.com/Tab-Ki/Zenn/tree/main/src/interpolation_of_3d_data/script.py
 
 # 2. 一次元データの補間
 
-まず一次元のデータに対して補間を試してみます。
+練習がてら一次元のデータに対して補間を試みます。
 
 ## 2.1. 補間の例
 
@@ -85,10 +84,11 @@ show_data_1D(func_1D, (x, data))
 
 青点で示した10個のデータが準備できました。
 
-これらのデータを引数として `RegularGridInterpolator` のオブジェクトを初期化するだけで準備は完了です。補間の実行は初期化したオブジェクトを用いて以下のように行います。
+これらのデータを引数として `RegularGridInterpolator` のオブジェクトを初期化するだけで補間の準備は完了です。実行は初期化したオブジェクトを用いて以下のように行います。
 
 ```Python:script.py
 from scipy.interpolate import RegularGridInterpolator
+# グリッド情報 x はタプル型で与える
 interp = RegularGridInterpolator((x,), data)
 
 x2 = np.array([i + 0.5 for i in range(9)])
@@ -99,11 +99,11 @@ show_data_1D(func_1D, (x, data), (x2, data2))
 ![](/images/interpolation_of_3d_data/2.png)
 *補間されたデータのプロット*
 
-図のオレンジ点は関数 $f(x)=x^2$ の情報を与えていませんが、関数上にプロットされており、適切な値に補間されているのが分かります。
+青点のちょうど中間の $x$ に対する値 $f(x)$ を補間し、オレンジ点でプロットしました。オレンジ点に与えているのは青点の情報のみで、関数 $f(x)=x^2$ の情報は与えていませんが、おおよそ適切な値に補間されているのが確認できます。
 
 ## 2.2. 補間方法の変更
 :::details 補間方法の変更
-`RegularGridInterpolator` の `method` オプションにはデフォルトでは線形補間を意味する `"linear"` が指定されます。先ほどの例では線形補間で問題ありませんでしたが、もう少し複雑な関数、例えば $f(x)=sin(x)$ ではどうでしょうか。
+`RegularGridInterpolator` の `method` オプションにはデフォルトでは線形補間を意味する `"linear"` が指定されます。$f(x)=x^2$ の例では線形補間でも（グラフで見えるレベルでは）問題ありませんでしたが、もう少し複雑な関数、例えば $f(x)=sin(x)$ ではどうでしょうか。
 
 ```Python:script.py
 data = np.sin(x)
@@ -146,7 +146,7 @@ show_data_1D(np.sin, (x, data), (x2, data2))
 ![](/images/interpolation_of_3d_data/7.png)
 *method="quintic"*
 
-各手法に対して、補完した値と正しい値の誤差を比較するために RMSD を計算したところ、以下表のようになりました。$f(x)=sin(x)$ の例では `"quintic"` で補完した値が最も正解との誤差が小さくなりました。
+各手法に対して、補間した値と正しい値の誤差を比較するために RMSD を計算したところ、以下表のようになりました。$f(x)=sin(x)$ の例では `"quintic"` で補間した値が最も正解との誤差が小さくなりました。
 
 |method|RMSD|
 |----|----|
@@ -191,7 +191,7 @@ show_data_3D((xg, yg, zg, data))
 ![](/images/interpolation_of_3d_data/8.png)
 *補間用データの準備*
 
-これに対して、各点の丁度中間に位置する座標における値を補間します。
+これに対して、各点の丁度中間に位置する座標 $x,y,z$ における値 $f(x,y,z)$ を補間します。
 
 ```Python:script.py
 interp = RegularGridInterpolator((x, y, z), data) # method = "linear"
@@ -205,7 +205,7 @@ show_data_3D((xg, yg, zg, data), (xg2, yg2, zg2, data2))
 ![](/images/interpolation_of_3d_data/9.png)
 *補完されたデータのプロット*
 
-補間元のデータと補間したデータの色は綺麗なグラデーションを形成しており、線形補間でもある程度適切に補間できていることが分かります。
+補間元データと補間データの色は綺麗なグラデーションを形成しており、こちらもグラフで見えるレベルではある程度適切に補間できていることが分かります。
 
 ## 3.2. 補間方法の変更
 
@@ -231,7 +231,7 @@ data2 = interp((xg2, yg2, zg2))
 show_data_3D((xg, yg, zg, data), (xg2, yg2, zg2, data2))
 ```
 
-デフォルトの `"linear"` も含めて、各手法で補間した値の正解との誤差 RMSD は以下表のようになりました。今回の関数 $f(x,y,z)=x^3+y^2+z$ は $x$ の増加に対して値が大きく発散するため、それを反映することができない `"nearest"` の誤差が最も大きい結果となりました。`"cubic"`, `"quintic"` はいずれも誤差が殆どありませんでしたが、関数 $f(x,y,z)=x^3+y^2+z$ の影響で3次のスプライン補間である `"cubic"` の誤差が最小となっています。
+<br>デフォルトの `"linear"` も含めて、各手法で補間した値の正解との誤差 RMSD は以下表のようになりました。今回の関数 $f(x,y,z)=x^3+y^2+z$ は $x$ の増加に対して値が大きく発散するため、それを反映することができない `"nearest"` の誤差が最も大きい結果となりました。`"cubic"`, `"quintic"` はいずれも誤差が殆どありませんでしたが、関数 $f(x,y,z)=x^3+y^2+z$ の影響で3次のスプライン補間である `"cubic"` の誤差が最小となっています。
 
 |method|RMSD|
 |----|----|
